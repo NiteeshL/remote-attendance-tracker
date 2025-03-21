@@ -45,7 +45,7 @@ app.get("/auth/discord/callback", async (req, res) => {
     const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1h" });
 
     res.cookie("auth_token", token, { httpOnly: true, secure: false });
-    res.redirect("http://localhost:5173/dashboard"); // Redirect to frontend
+    res.redirect("http://localhost:5173/dashboard");
   } catch (error) {
     console.error("Discord OAuth Error:", error.message);
     res.status(400).send("OAuth failed!");

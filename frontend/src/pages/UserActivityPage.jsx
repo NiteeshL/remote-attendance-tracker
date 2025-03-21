@@ -30,7 +30,6 @@ const UserActivityPage = () => {
         <>
             <UserNavbar />
             <div className="container mx-auto p-6">
-                {/* User Info Section */}
                 <div className="card bg-base-100 shadow-md p-6 flex items-center gap-4">
                     <div className="avatar">
                         <div className="w-16 rounded-full">
