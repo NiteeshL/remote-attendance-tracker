@@ -1,0 +1,35 @@
+services:
+  frontend:
+    build: 
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://backend:5000
+    networks:
+      - app-network
+
+  backend:
+    build: 
+      context: ./backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGO_URI}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - REDIRECT_URI=${REDIRECT_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - GUILD_ID=${GUILD_ID}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+    networks:
+      - app-network
+    restart: on-failure
+
+networks:
+  app-network:
+    driver: bridge
