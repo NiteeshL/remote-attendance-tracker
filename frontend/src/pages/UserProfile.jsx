@@ -29,15 +29,14 @@ const ProfilePage = () => {
         }
     };
 
-    // Function to get the correct avatar URL
     const getAvatarUrl = () => {
         if (user?.avatar) {
-            return user.avatar; // Use avatar from backend
+            return user.avatar; 
         }
         if (user?.id) {
-            return `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`; // Default Discord avatar
+            return `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`; 
         }
-        return "https://img.icons8.com/ios-filled/50/000000/user.png"; // Fallback icon
+        return "https://img.icons8.com/ios-filled/50/000000/user.png"; 
     };
 
     if (!user) {

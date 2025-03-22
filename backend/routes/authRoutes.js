@@ -14,9 +14,6 @@ const {
   JWT_SECRET,
 } = process.env;
 
-/**
- * Redirects user to Discord OAuth2 login page.
- */
 router.get("/discord", (req, res) => {
   const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(
     REDIRECT_URI
@@ -24,15 +21,11 @@ router.get("/discord", (req, res) => {
   res.redirect(discordAuthUrl);
 });
 
-/**
- * Handles Discord OAuth2 callback, verifies user, assigns roles, and redirects.
- */
 router.get("/discord/callback", async (req, res) => {
   const code = req.query.code;
   if (!code) return res.status(400).send("❌ No authorization code provided!");
 
   try {
-    // Step 1: Exchange code for access token
     const tokenResponse = await axios.post(
       "https://discord.com/api/oauth2/token",
       new URLSearchParams({
@@ -47,32 +40,27 @@ router.get("/discord/callback", async (req, res) => {
 
     const accessToken = tokenResponse.data.access_token;
 
-    // Step 2: Fetch user info from Discord
     const userResponse = await axios.get("https://discord.com/api/users/@me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     const { id: userId, username, avatar } = userResponse.data;
 
-    // Construct Discord avatar URL
     const avatarUrl = avatar
       ? `https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(userId) % 5}.png`; // Discord default avatar
 
-    // Step 3: Check if user exists in MongoDB, else create/update one
     let dbUser = await User.findOneAndUpdate(
       { userId },
       { username, avatar: avatarUrl },
       { new: true, upsert: true }
     );
 
-    const role = dbUser.role || "User"; // Ensure role exists
+    const role = dbUser.role || "User"; 
 
-    // Step 4: Generate JWT Token with Role
     const tokenPayload = { id: userId, username, role, avatar: avatarUrl };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "1h" });
 
-    // Step 5: Set Authentication Cookie
     res.cookie("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -93,17 +81,11 @@ router.get("/discord/callback", async (req, res) => {
   }
 });
 
-/**
- * Logs the user out.
- */
 router.get("/logout", (req, res) => {
   res.clearCookie("auth_token");
   res.json({ message: "✅ Logged out successfully" });
 });
 
-/**
- * Middleware to verify JWT and extract user role.
- */
 function authenticateUser(req, res, next) {
   try {
     const token = req.cookies.auth_token;
@@ -118,9 +100,6 @@ function authenticateUser(req, res, next) {
   }
 }
 
-/**
- * Fetch authenticated user info.
- */
 router.get("/user", authenticateUser, async (req, res) => {
   try {
     const dbUser = await User.findOne({ userId: req.user.id });
@@ -133,9 +112,7 @@ router.get("/user", authenticateUser, async (req, res) => {
   }
 });
 
-/**
- * Admin verification route.
- */
+
 router.get("/admin", authenticateUser, async (req, res) => {
   try {
     const dbUser = await User.findOne({ userId: req.user.id });

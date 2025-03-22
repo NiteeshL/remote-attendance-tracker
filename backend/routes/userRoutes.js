@@ -20,7 +20,7 @@ router.get("/activity/:userId/:guildId", async (req, res) => {
     res.json({
       username: userStats.username || "Unknown",
       totalDuration: userStats.totalDuration ?? 0,
-      weeklyDuration: userStats.weeklyDuration ?? 0, // Fixed from weeklyStats
+      weeklyDuration: userStats.weeklyDuration ?? 0,
       monthlyDuration: userStats.monthlyDuration ?? 0,
       totalMessages: userStats.totalMessages ?? 0,
       voiceTime: userStats.voiceTime ?? 0,

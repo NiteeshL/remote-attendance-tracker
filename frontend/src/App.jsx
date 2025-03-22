@@ -7,6 +7,8 @@ import ReportsPage from "./pages/ReportsPage";
 import ProfilePage from "./pages/UserProfile";
 import SettingsPage from "./pages/SettingsPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import Leaderboard from "./pages/Leaderboard";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
@@ -20,6 +22,9 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path="/leaderboard" element={<Leaderboard/>} />
+        <Route path="/reports" element={<Reports />} />
+
       </Routes>
     </Router>
   );
