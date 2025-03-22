@@ -62,11 +62,29 @@ jobs:
 
       - name: Deploy to EKS
         run: |
+          # Create secrets from template
+          envsubst < k8s/secrets.template.yaml > k8s/secrets.yaml
+          
+          # Update image tags
           sed -i "s|niteesh0303/attendance-tracker-frontend:latest|${{ env.DOCKER_REGISTRY }}/attendance-tracker-frontend:${{ github.sha }}|g" k8s/frontend-deployment.yaml
           sed -i "s|niteesh0303/attendance-tracker-backend:latest|${{ env.DOCKER_REGISTRY }}/attendance-tracker-backend:${{ github.sha }}|g" k8s/backend-deployment.yaml
+          
+          # Apply Kubernetes configurations
           kubectl apply -f k8s/storage-class.yaml
           kubectl apply -f k8s/secrets.yaml
           kubectl apply -f k8s/mongodb-deployment.yaml
           kubectl apply -f k8s/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
           kubectl apply -f k8s/ingress.yaml
+          
+          # Clean up secrets file
+          rm k8s/secrets.yaml
+        env:
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
