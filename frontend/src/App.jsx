@@ -6,6 +6,7 @@ import LiveAttendancePage from "./pages/LiveAttendancePage";
 import ReportsPage from "./pages/ReportsPage";
 import ProfilePage from "./pages/UserProfile";
 import SettingsPage from "./pages/SettingsPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/report" element={<ReportsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

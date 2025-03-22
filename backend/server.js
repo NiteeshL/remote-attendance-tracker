@@ -6,16 +6,20 @@ const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes"); // ✅ Import admin routes
+const userReport = require("./routes/userReport");
 
 const app = express();
 
 // Middleware
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
+app.use(express.json()); // ✅ Needed for JSON body parsing
 
 // Routes
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
+app.use("/admin", adminRoutes); // ✅ Fix: Now admin routes are available
 
 const { MONGO_URI } = process.env;
 

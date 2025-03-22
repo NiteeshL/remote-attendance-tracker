@@ -10,6 +10,7 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.MessageContent,
   ],
@@ -27,6 +28,7 @@ const voiceStateUpdate = require("./events/voiceStateUpdate");
 client.on("ready", ready);
 client.on("messageCreate", messageCreate);
 client.on("voiceStateUpdate", voiceStateUpdate);
+
 
 // Log in to Discord
 client.login(process.env.DISCORD_TOKEN);
