@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 const UserNavbar = () => {
@@ -22,11 +23,11 @@ const UserNavbar = () => {
   return (
     <div className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">Remote Attendance Tracker</a>
+        <Link to="/dashboard" className="btn btn-ghost text-xl">Remote Attendance Tracker</Link>
       </div>
       <div className="flex gap-4">
         <ul className="menu menu-horizontal px-1">
-          <li><a>Attendance</a></li>
+          <li><Link to="/report">Report</Link></li>
         </ul>
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
@@ -44,13 +45,8 @@ const UserNavbar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow">
             {user ? (
               <>
-                <li>
-                  <a className="justify-between">
-                    {user.username}
-                    <span className="badge">New</span>
-                  </a>
-                </li>
-                <li><a>Settings</a></li>
+                <li><Link to="/profile">{user.username}</Link></li>
+                <li><Link to="/settings">Settings</Link></li>
                 <li><button onClick={handleLogout}>Logout</button></li>
               </>
             ) : (

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import UserNavbar from "../components/UserNavbar";
 
 const sampleActivityData = [
     { day: "Mon", hours: 3 },
@@ -12,35 +12,42 @@ const sampleActivityData = [
     { day: "Sun", hours: 1 },
 ];
 
-const UserActivityPage = () => {
-    const [user, setUser] = useState({
-        name: "John Doe",
-        role: "Software Engineer",
-        avatar: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-        status: "Online",
-    });
-
+const UserActivity = () => {
+    const [user, setUser] = useState(null);
     const [activity, setActivity] = useState({
         messagesSent: 124,
         voiceMinutes: 340,
         totalHours: 25,
     });
 
+    useEffect(() => {
+        axios.get("http://localhost:5000/auth/user", { withCredentials: true })
+            .then((response) => {
+                setUser(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching user data:", error);
+            });
+    }, []);
+
     return (
         <>
-            <UserNavbar />
             <div className="container mx-auto p-6">
                 <div className="card bg-base-100 shadow-md p-6 flex items-center gap-4">
                     <div className="avatar">
                         <div className="w-16 rounded-full">
-                            <img src={user.avatar} alt="User Avatar" />
+                            <img
+                                src={user ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                                    : "https://img.icons8.com/ios-filled/50/000000/user.png"}
+                                alt="User Avatar"
+                            />
                         </div>
                     </div>
                     <div>
-                        <h2 className="text-xl font-semibold">{user.name}</h2>
-                        <p className="text-gray-500">{user.role}</p>
-                        <span className={`badge ${user.status === "Online" ? "badge-success" : "badge-error"}`}>
-                            {user.status}
+                        <h2 className="text-xl font-semibold">{user ? user.username : "Guest"}</h2>
+                        <p className="text-gray-500">{user ? user.role || "Member" : "Not Logged In"}</p>
+                        <span className={`badge ${user ? "badge-success" : "badge-error"}`}>
+                            {user ? "Online" : "Offline"}
                         </span>
                     </div>
                 </div>
@@ -76,4 +83,4 @@ const UserActivityPage = () => {
     );
 };
 
-export default UserActivityPage;
+export default UserActivity;
