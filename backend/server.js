@@ -17,16 +17,39 @@ const {
   DISCORD_CLIENT_SECRET,
   REDIRECT_URI,
   JWT_SECRET,
-  MONGO_URI,
+  MONGODB_URI,
+  GUILD_ID,
+  DISCORD_BOT_TOKEN
 } = process.env;
 
-if (!DISCORD_CLIENT_ID || !DISCORD_CLIENT_SECRET || !REDIRECT_URI || !JWT_SECRET || !MONGO_URI) {
-  console.error("❌ Missing required environment variables! Check .env file.");
+console.log("MONGODB_URI:", process.env.MONGODB_URI);
+console.log("DISCORD_CLIENT_ID:", process.env.DISCORD_CLIENT_ID);
+
+if (!MONGODB_URI) {
+  console.error("❌ MONGODB_URI is undefined! Check your .env file.");
   process.exit(1);
 }
 
+// Check other required variables
+const requiredEnvVars = {
+  DISCORD_CLIENT_ID,
+  DISCORD_CLIENT_SECRET,
+  REDIRECT_URI,
+  JWT_SECRET,
+  MONGODB_URI,
+  GUILD_ID,
+  DISCORD_BOT_TOKEN
+};
+
+for (const [key, value] of Object.entries(requiredEnvVars)) {
+  if (!value) {
+    console.error(`❌ ${key} is undefined! Check your .env file.`);
+    process.exit(1);
+  }
+}
+
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGODB_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
