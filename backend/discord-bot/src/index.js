@@ -29,4 +29,4 @@ client.on("messageCreate", messageCreate);
 client.on("voiceStateUpdate", voiceStateUpdate);
 
 // Log in to Discord
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_BOT_TOKEN);
