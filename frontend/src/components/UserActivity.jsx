@@ -14,24 +14,27 @@ const UserActivity = () => {
     useEffect(() => {
         axios.get("http://localhost:5000/auth/user", { withCredentials: true })
             .then((response) => {
-                console.log("Auth User Data:", response.data);
+                console.log("✅ Auth User Data:", response.data);
                 setUser(response.data);
 
                 const userId = response.data.id;
-                const guildId = response.data.primary_guild || "1352683297850921061"; // Fallback guildId
+                const guildId = response.data.primary_guild || "1352683297850921061"; // Default guildId
                 return axios.get(`http://localhost:5000/user/activity/${userId}/${guildId}`);
             })
             .then((response) => {
-                console.log("User Activity Data:", response.data);
+                console.log("✅ User Activity Data:", response.data);
 
                 setActivity({
-                    messagesSent: response.data.totalMessages,
-                    voiceMinutes: Math.floor(response.data.voiceTime / 60), 
-                    totalDuration: Math.floor(response.data.totalDuration / 60),
+                    messagesSent: response.data.totalMessages ?? 0,
+                    voiceMinutes: Math.floor((response.data.voiceTime ?? 0) / 60),
+                    totalDuration: Math.floor((response.data.totalDuration ?? 0) / 60),
                 });
 
-                const formattedWeeklyStats = response.data.weeklyStats.length > 0
-                    ? response.data.weeklyStats
+                const formattedWeeklyStats = response.data.weeklyDuration?.length > 0
+                    ? response.data.weeklyDuration.map((entry, index) => ({
+                        day: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][index] || `Day ${index + 1}`,
+                        hours: Math.floor((entry ?? 0) / 60),
+                    }))
                     : [
                         { day: "Mon", hours: 0 },
                         { day: "Tue", hours: 0 },
@@ -45,19 +48,31 @@ const UserActivity = () => {
                 setWeeklyActivity(formattedWeeklyStats);
             })
             .catch((error) => {
-                console.error("Error fetching user activity data:", error.message);
+                console.error("❌ Error fetching user activity data:", error.message);
             });
     }, []);
 
+    // Function to get the correct avatar URL
+    const getAvatarUrl = () => {
+        if (user?.avatar) {
+            return user.avatar; // Use the avatar from the backend
+        }
+        if (user?.id) {
+            return `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`; // Default Discord avatar
+        }
+        return "https://img.icons8.com/ios-filled/50/000000/user.png"; // Fallback icon
+    };
+
     return (
         <div className="container mx-auto p-6">
+            {/* User Info Card */}
             <div className="card bg-base-100 shadow-md p-6 flex items-center gap-4">
                 <div className="avatar">
                     <div className="w-16 rounded-full">
                         <img
-                            src={user ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-                                : "https://img.icons8.com/ios-filled/50/000000/user.png"}
+                            src={getAvatarUrl()}
                             alt="User Avatar"
+                            className="w-full h-full object-cover"
                         />
                     </div>
                 </div>
@@ -70,6 +85,7 @@ const UserActivity = () => {
                 </div>
             </div>
 
+            {/* User Stats */}
             <div className="stats stats-vertical md:stats-horizontal shadow w-full mt-6">
                 <div className="stat">
                     <div className="stat-title">Messages Sent</div>
@@ -85,6 +101,7 @@ const UserActivity = () => {
                 </div>
             </div>
 
+            {/* Weekly Activity Chart */}
             <div className="card bg-base-100 shadow-md p-6 mt-6">
                 <h3 className="text-lg font-semibold mb-4">Weekly Activity</h3>
                 <ResponsiveContainer width="100%" height={300}>
