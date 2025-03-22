@@ -1,0 +1,4 @@
+{
+    "trackedTextChannels": ["general", "discussions"],
+    "trackedVoiceChannels": ["meetings", "General"]
+}
