@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   userId: { type: String, required: true }, 
   username: { type: String, required: true },
   guildId: { type: String, required: true },
+  roles: { type: [String], default: [] },
   totalDuration: { type: Number, default: 0 }, 
   weeklyDuration: { type: Number, default: 0 }, 
   monthlyDuration: { type: Number, default: 0 },

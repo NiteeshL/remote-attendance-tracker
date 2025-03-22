@@ -6,7 +6,7 @@ import {
 import { FiClock, FiMessageSquare, FiPhone, FiDownload } from "react-icons/fi";
 import UserNavbar from "../components/UserNavbar";
 
-const GUILD_ID = "1352683297850921061"; // Replace with actual Guild ID
+const GUILD_ID = "1352683297850921061";
 
 const ReportsPage = () => {
     const [userId, setUserId] = useState(null);
