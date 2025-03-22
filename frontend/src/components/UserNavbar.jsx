@@ -27,6 +27,7 @@ const UserNavbar = () => {
       </div>
       <div className="flex gap-4">
         <ul className="menu menu-horizontal px-1">
+          <li><a className="text-base">Attendance</a></li>
           <li><Link to="/report">Report</Link></li>
         </ul>
         <div className="dropdown dropdown-end">
@@ -45,12 +46,20 @@ const UserNavbar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow">
             {user ? (
               <>
+                <li>
+                  <a className="justify-between text-base">
+                    {user.username}
+                    <span className="badge">New</span>
+                  </a>
+                </li>
+                <li><a className="text-base">Settings</a></li>
+                <li><button className="text-base" onClick={handleLogout}>Logout</button></li>
                 <li><Link to="/profile">{user.username}</Link></li>
                 <li><Link to="/settings">Settings</Link></li>
                 <li><button onClick={handleLogout}>Logout</button></li>
               </>
             ) : (
-              <li><a href="http://localhost:5000/auth/discord">Login with Discord</a></li>
+              <li><a className="text-base" href="http://localhost:5000/auth/discord">Login with Discord</a></li>
             )}
           </ul>
         </div>
