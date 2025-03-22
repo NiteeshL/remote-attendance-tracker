@@ -22,12 +22,12 @@ app.use("/admin", adminRoutes);
 const { MONGO_URI } = process.env;
 
 if (!MONGO_URI) {
-  console.error("❌ Missing MONGO_URI in .env file.");
+  console.error("❌ Missing MONGO_URI in environment variables.");
   process.exit(1);
 }
 
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
