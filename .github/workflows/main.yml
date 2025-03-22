@@ -1,5 +1,53 @@
-name: CI/CD Pipeline
+name: CI/CD Pipelinename: CI/CD Pipeline
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        kubectl rollout status deployment/attendance-tracker        kubectl set image deployment/attendance-tracker attendance-tracker=${{ env.DOCKER_REGISTRY }}/attendance-tracker:latest      run: |    - name: Update Kubernetes deployment        aws-region: ${{ env.AWS_REGION }}        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}      with:      uses: aws-actions/configure-aws-credentials@v1    - name: Configure AWS credentials        tags: ${{ env.DOCKER_REGISTRY }}/attendance-tracker:latest        push: true        context: .      with:      uses: docker/build-push-action@v2    - name: Build and push Docker image        password: ${{ secrets.DOCKER_PASSWORD }}        username: ${{ secrets.DOCKER_USERNAME }}      with:      uses: docker/login-action@v1    - name: Login to DockerHub      uses: docker/setup-buildx-action@v1    - name: Set up Docker Buildx      uses: actions/checkout@v2    - name: Checkout code    steps:    runs-on: ubuntu-latest  build:jobs:  DOCKER_REGISTRY: niteesh0303  EKS_CLUSTER_NAME: attendance-tracker  AWS_REGION: ap-south-1env:    branches: [ main ]  pull_request:    branches: [ main ]  push:on:
 on:
   push:
     branches: [ main ]
@@ -61,6 +109,22 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check EKS cluster existence
+        id: check-cluster
+        continue-on-error: true
+        run: |
+          aws eks describe-cluster --name ${{ env.EKS_CLUSTER_NAME }}
+
+      - name: Create EKS Cluster if not exists
+        if: steps.check-cluster.outcome == 'failure'
+        run: |
+          aws eks create-cluster \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }} \
+            --role-arn ${{ secrets.EKS_ROLE_ARN }} \
+            --resources-vpc-config subnetIds=${{ secrets.SUBNET_IDS }},securityGroupIds=${{ secrets.SECURITY_GROUP_IDS }}
+          aws eks wait cluster-active --name ${{ env.EKS_CLUSTER_NAME }}
 
       - name: Update kube config
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}
