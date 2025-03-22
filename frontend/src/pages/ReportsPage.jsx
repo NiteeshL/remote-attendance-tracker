@@ -1,57 +1,93 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend
+    Legend
 } from "recharts";
-import { FiClock, FiMessageSquare, FiPhone, FiDownload, FiPieChart } from "react-icons/fi";
+import { FiClock, FiMessageSquare, FiPhone, FiDownload } from "react-icons/fi";
 import UserNavbar from "../components/UserNavbar";
 
-const sampleReports = [
-    {
-        period: "Weekly",
-        totalHours: 35,
-        messagesSent: 250,
-        voiceMinutes: 120,
-        downloadLink: "#",
-        data: [
-            { day: "Mon", hours: 4 },
-            { day: "Tue", hours: 5 },
-            { day: "Wed", hours: 6 },
-            { day: "Thu", hours: 3 },
-            { day: "Fri", hours: 8 },
-            { day: "Sat", hours: 2 },
-            { day: "Sun", hours: 7 },
-        ],
-        activityBreakdown: [
-            { name: "Messages Sent", value: 40 },
-            { name: "Voice Calls", value: 35 },
-            { name: "Idle Time", value: 25 },
-        ]
-    },
-    {
-        period: "Monthly",
-        totalHours: 140,
-        messagesSent: 1020,
-        voiceMinutes: 480,
-        downloadLink: "#",
-        data: [
-            { week: "Week 1", hours: 30 },
-            { week: "Week 2", hours: 35 },
-            { week: "Week 3", hours: 25 },
-            { week: "Week 4", hours: 50 },
-        ],
-        activityBreakdown: [
-            { name: "Messages Sent", value: 45 },
-            { name: "Voice Calls", value: 30 },
-            { name: "Idle Time", value: 25 },
-        ]
-    },
-];
-
-const COLORS = ["#4CAF50", "#FF9800", "#F44336"];
+const GUILD_ID = "1352683297850921061"; // Replace with actual Guild ID
 
 const ReportsPage = () => {
-    const [reports] = useState(sampleReports);
+    const [userId, setUserId] = useState(null);
+    const [reports, setReports] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/auth/user", {
+                    credentials: "include",
+                });
+
+                if (!response.ok) throw new Error("Failed to fetch user");
+
+                const userData = await response.json();
+                setUserId(userData.id);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+    useEffect(() => {
+        if (!userId) return;
+
+        const fetchReports = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch(`http://localhost:5000/user/activity/${userId}/${GUILD_ID}`);
+                if (!response.ok) throw new Error("Failed to fetch reports");
+
+                const data = await response.json();
+
+                const totalMinutes = data.totalDuration / 60;
+                const voiceMinutes = data.voiceTime / 60;
+                const textMinutes = Math.max(totalMinutes - voiceMinutes, 0).toFixed(2);
+
+                setReports([
+                    {
+                        period: "Weekly",
+                        totalHours: (data.totalDuration / 3600).toFixed(2),
+                        messagesSent: data.totalMessages,
+                        voiceMinutes: voiceMinutes.toFixed(2),
+                        data: [
+                            {
+                                period: "Weekly",
+                                Messages: data.totalMessages,
+                                "Voice Minutes": parseFloat(voiceMinutes)
+                            }
+                        ]
+                    },
+                    {
+                        period: "Monthly",
+                        totalHours: (data.monthlyDuration / 3600).toFixed(2),
+                        messagesSent: data.totalMessages,
+                        voiceMinutes: voiceMinutes.toFixed(2),
+                        data: [
+                            {
+                                period: "Monthly",
+                                Messages: data.totalMessages,
+                                "Voice Minutes": parseFloat(voiceMinutes)
+                            }
+                        ]
+                    }
+                ]);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReports();
+    }, [userId]);
+
+    if (error) return <p className="text-center text-red-500">{error}</p>;
+    if (loading) return <p className="text-center">Loading...</p>;
 
     return (
         <>
@@ -95,35 +131,13 @@ const ReportsPage = () => {
                                 <ResponsiveContainer width="100%" height={250}>
                                     <BarChart data={report.data}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey={report.period === "Weekly" ? "day" : "week"} />
+                                        <XAxis dataKey="period" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Bar dataKey="hours" fill="#6366F1" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-
-                            <div className="mt-6">
-                                <h3 className="text-md font-semibold mb-2 flex items-center gap-2">
-                                    <FiPieChart /> Activity Breakdown
-                                </h3>
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <PieChart>
-                                        <Pie
-                                            data={report.activityBreakdown}
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                            label
-                                        >
-                                            {report.activityBreakdown.map((entry, i) => (
-                                                <Cell key={`cell-${i}`} fill={COLORS[i]} />
-                                            ))}
-                                        </Pie>
                                         <Legend />
-                                    </PieChart>
+                                        <Bar dataKey="Messages" fill="#6366F1" stackId="a" />
+                                        <Bar dataKey="Voice Minutes" fill="#FF9800" stackId="a" />
+                                    </BarChart>
                                 </ResponsiveContainer>
                             </div>
 

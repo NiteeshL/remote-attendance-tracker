@@ -6,11 +6,13 @@ const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = require("./models/User");
+const userReportRoutes = require("./routes/userReport");
 
 const app = express();
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
+app.use("/user/report", userReportRoutes);
 
 const {
   DISCORD_CLIENT_ID,
