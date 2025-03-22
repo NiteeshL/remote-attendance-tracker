@@ -2,7 +2,7 @@ const Attendance = require("../database/models/Attendance");
 const User = require("../database/models/User");
 
 const activeUsers = new Map();
-const AFK_TIMEOUT = 3 * 60 * 1000; // 3 minutes
+const AFK_TIMEOUT = 1 * 60 * 1000; // 1 minute
 
 module.exports = async (message) => {
     if (message.author.bot) return;
